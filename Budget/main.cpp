@@ -8,26 +8,24 @@ fstream fin ("budget.in.txt", ios::in);
 fstream fout ("budget.out.txt", ios::out);
 struct node
 {
-    int position;
-    long int amount;
+    unsigned int position;
+    unsigned int amount;
     node *next;
 };
 
 struct node_num
 {
-    int num;
+    short int num;
     node_num *next;
 };
 struct node_pos
 {
-    int position;
-    long int amount;
-    long int total_amount;
+    unsigned short int position;
+    long long int amount;
+    unsigned int total_amount;
     node_num *parent_first;
-    node_num *parent_last;
-    int ministries[17];
+    unsigned char ministries[17];
     node *first;
-    node *last;
 };
 
 class saraksts
@@ -41,7 +39,7 @@ public:
         first=NULL;
         last=NULL;
     };
-    void add_element (int amou, int pos)
+    void add_element (unsigned int amou, unsigned int pos)
     {
         node * P=new node;
         P->position=pos;
@@ -57,39 +55,137 @@ public:
         N=first;
         while (N!=NULL)
         {
-            cout<<N->position<<" "<<N->amount<<endl;
+
             N=N->next;
+        }
+    }
+    void sort_izeja ()
+    {
+        if((first!=NULL) && (first->next!=NULL))
+        {
+            node *p=first;
+            node *pasreiz=first;
+            node *ieprieks=NULL;
+            node *temp=NULL;
+            bool a=false;
+            short int skaits=0;
+
+            while (p!=NULL)
+            {
+                skaits++;
+                p=p->next;
+            }
+            for (int i=0; i<skaits; i++)
+            {
+                while (pasreiz->next !=NULL)
+                {
+                    temp=pasreiz->next;
+                    if ((pasreiz->position) > (temp->position))
+                    {
+                        a=true;
+                        pasreiz->next=temp->next;
+                        temp->next=pasreiz;
+                        if (ieprieks !=NULL) ieprieks->next=temp;
+                        ieprieks=temp;
+                        if (first==pasreiz) first=temp;
+                        if(pasreiz->next==NULL) last=pasreiz;
+
+                    }
+                    else
+                    {
+                        ieprieks=pasreiz;
+                        pasreiz=pasreiz->next;
+                    }
+                }
+
+                if (a==false) break;
+                else
+                {
+                    ieprieks=NULL;
+                    pasreiz=first;
+                    a=false;
+                }
+            }
+        }
+    }
+    void sort_izeja_dilstosi ()
+    {
+        if((first!=NULL) && (first->next!=NULL))
+        {
+            node *p=first;
+            node *pasreiz=first;
+            node *ieprieks=NULL;
+            node *temp=NULL;
+            bool a=false;
+            int skaits=0;
+
+            while (p!=NULL)
+            {
+                skaits++;
+                p=p->next;
+            }
+            for (int i=0; i<skaits; i++)
+            {
+                while (pasreiz->next !=NULL)
+                {
+                    temp=pasreiz->next;
+                    if ((pasreiz->position) < (temp->position))
+                    {
+                        a=true;
+                        pasreiz->next=temp->next;
+                        temp->next=pasreiz;
+                        if (ieprieks !=NULL) ieprieks->next=temp;
+                        ieprieks=temp;
+                        if (first==pasreiz) first=temp;
+                        if(pasreiz->next==NULL) last=pasreiz;
+
+                    }
+                    else
+                    {
+                        ieprieks=pasreiz;
+                        pasreiz=pasreiz->next;
+                    }
+                }
+
+                if (a==false) break;
+                else
+                {
+                    ieprieks=NULL;
+                    pasreiz=first;
+                    a=false;
+                }
+            }
         }
     }
 
 };
 
-void find_ministry (int a, int b, struct node_pos**arr)
+void find_ministry (unsigned int a, unsigned int b, struct node_pos* arr[])
 {
+    node *L=new node;
+    bool has_ministr=false;
    for(int i=a; i<b+1; i++)
     {
         if (arr[i]->position!=0)
         {
-            int sum=0;
+            has_ministr=false;
             for (int j=1; j<17; j++)
             {
-                sum=sum+arr[i]->ministries[j];
+                if(arr[i]->ministries[j]=='t')
+                    has_ministr=true;
             }
-            if (sum>0)
+            if (has_ministr==true)
             {
-                node *L=new node;
                 L=arr[i]->first;
 
                 while (L!=NULL)
                 {
                     for (int k=1; k<17; k++)
                     {
-                        if(arr[i]->ministries[k]!=0)
+                        if(arr[i]->ministries[k]!='f')
                         {
-                            arr[L->position]->ministries[k]=k;
-                            cout<<"void"<<endl;
-                            cout<<arr[i]->position<<" ";
-                            cout<<L->position<<endl;
+                            arr[L->position]->ministries[k]='t';
+
                         }
                     }
                     L=L->next;
@@ -100,27 +196,28 @@ void find_ministry (int a, int b, struct node_pos**arr)
     }
 
 }
+
+node_pos* arr[50000];
 int main()
 {
 
-  node_pos **arr=new node_pos*[100000];
 
-  for (int i =0; i<100001; i++)
+
+  for (int i =0; i<50001; i++)
   {
       arr[i]=new node_pos;
       arr[i]->amount=0;
       arr[i]->position=0;
       arr[i]->first=NULL;
-      arr[i]->last=NULL;
       arr[i]->parent_first=NULL;
-      arr[i]->parent_last=NULL;
       for (int j=0; j<17; j++)
       {
-          arr[i]->ministries[j]=0;
+          arr[i]->ministries[j]='f';
       }
   }
 
-  int coun=0, amou=0, pos=0, paren_pos=0, child_pos=0, biggest_pos=0, mistake=0, ministry=0;
+  unsigned int coun=0, pos=0, paren_pos=0, child_pos=0, biggest_pos=0, ministry=0;
+  long long int amou;
   bool error2=false, error1 = false, error3=false, error4=false;
   saraksts Error2_saraksts;
   saraksts Error1_saraksts;
@@ -136,7 +233,7 @@ int main()
       arr[pos]->position=pos;
       arr[pos]->amount=amou;
       arr[pos]->total_amount=0;
-      arr[pos]->ministries[pos]=pos;
+      arr[pos]->ministries[pos]='t';
   }
 
 fin>>paren_pos>>child_pos>>amou;
@@ -164,12 +261,18 @@ while(fin)
 
         //vecāka pozīcijai bērnu sarakstam pievieno bērnu
         node *T=new node;
-        if (arr[paren_pos]->first == NULL) arr[paren_pos]->first = T;
-        else arr[paren_pos]->last->next = T;
-        arr[paren_pos]->last = T;
+        if (arr[paren_pos]->first == NULL)
+        {
+            arr[paren_pos]->first = T;
+            T->next=NULL;
+        }
+        else
+        {
+            T->next=arr[paren_pos]->first;
+            arr[paren_pos]->first = T;
+        }
         T->amount=amou;
         T->position=child_pos;
-        T->next=NULL;
 
         //Ja vēl neeksistē bērna pozīcija, tad to izveido
         if (arr[child_pos]->position==0 && child_pos>coun)
@@ -181,16 +284,15 @@ while(fin)
         //Bērna vecāku saraktam pievieno vecāku
         node_num *N= new node_num;
         N->num=paren_pos;
-        N->next=NULL;
         if (arr[child_pos]->parent_first==NULL)
         {
             arr[child_pos]->parent_first=N;
-            arr[child_pos]->parent_last=N;
+            N->next=NULL;
         }
         else
         {
-            arr[child_pos]->parent_last->next=N;
-            arr[child_pos]->parent_last=N;
+            N->next= arr[child_pos]->parent_first;
+            arr[child_pos]->parent_first=N;
         }
 
         }
@@ -200,19 +302,18 @@ while(fin)
             //Ja bērna pozīcija jau eksistē, tad tikai vecāku sarakstam pievieno vecāku
             node_num *N=new node_num;
             N->num=paren_pos;
-            N->next=NULL;
             arr[child_pos]->amount=amou;
             if (arr[child_pos]->parent_first==NULL)
             {
-            arr[child_pos]->parent_first=N;
-            arr[child_pos]->parent_last=N;
+                arr[child_pos]->parent_first=N;
+                N->next=NULL;
             }
             else
             {
-            arr[child_pos]->parent_last->next=N;
-            arr[child_pos]->parent_last=N;
+                N->next= arr[child_pos]->parent_first;
+                arr[child_pos]->parent_first=N;
             }
-            }
+        }
         else
         {
 
@@ -220,33 +321,52 @@ while(fin)
 
         fin>>paren_pos>>child_pos>>amou;
     }
-
+//ja ir atrasts error1, tad izdrukā un beidz programmu
+if (error1 ==true)
+{
+    node *P = new node;
+    Error1_saraksts.sort_izeja();
+    P = Error1_saraksts.first;
+    fout<<"Error_1";
+    while (P!=NULL)
+    {
+        if (P->next!=NULL)
+        {
+            if (P->position== P->next->position)P=P->next;
+        }
+        fout<<" "<<P->position;
+        P=P->next;
+    }
+    return 0;
+}
 
 
     //error2
+    node *L=new node;
+    bool has_ministr=false;
+
     for(int i=1; i<biggest_pos+1; i++)
     {
         if (arr[i]->position!=0)
         {
-            int sum=0;
+            has_ministr=false;
             for (int j=1; j<17; j++)
             {
-                sum=sum+arr[i]->ministries[j];
+                if (arr[i]->ministries[j]=='t')
+                    has_ministr=true;
             }
-            if (sum>0)
+            if (has_ministr==true)
             {
-                node *L=new node;
+
                 L=arr[i]->first;
 
                 while (L!=NULL)
                 {
                     for (int k=1; k<17; k++)
                     {
-                        if(arr[i]->ministries[k]!=0)
+                        if(arr[i]->ministries[k]=='t')
                         {
-                            arr[L->position]->ministries[k]=k;
-                            cout<<arr[i]->position<<" ";
-                            cout<<L->position<<endl;
+                            arr[L->position]->ministries[k]='t';
                         }
                     }
                     if (L->position<arr[i]->position)
@@ -260,84 +380,57 @@ while(fin)
             else
             {
             error2=true;
-            Error2_saraksts.add_element(arr[i]->position, arr[i]->amount);
+            Error2_saraksts.add_element(arr[i]->amount, arr[i]->position);
             }
         }
     }
+  //ja ir atrasts error2, tad izdrukā un programma beidz darbu
+    if (error2 ==true && error1==false)
+{
+    Error2_saraksts.sort_izeja();
 
-    for (int i=0; i<biggest_pos+1; i++)
+    node *P = new node;
+    P = Error2_saraksts.first;
+        fout<<"Error_2";
+    while (P!=NULL)
     {
-        if (arr[i]->position!=0)
+        if (P->next!=NULL)
         {
-           cout<<"Poz: "<<arr[i]->position<<" "<<arr[i]->amount<<endl;
-           for(int j=0; j<17; j++)
-           {
-               cout<<arr[i]->ministries[j]<<" ";
-           }
-           cout<<endl;
-           node_num*K=new node_num;
-           K=arr[i]->parent_first;
-           while(K!=NULL)
-           {
-               cout<<K->num<<" ";
-               K=K->next;
-           }
-           cout<<endl;
-           node *O=new node;
-           O=arr[i]->first;
-           while(O!=NULL)
-           {
-               cout<<O->position<<" ";
-               O=O->next;
-           }
-           cout<<endl;
+            if (P->position== P->next->position)P=P->next;
         }
-
+        fout<<" "<<P->position;
+        P=P->next;
     }
-    //error3
-    int error3arr[17]={0};
-    for (int i=1; i<biggest_pos+1; i++)
-    {
-        node *B=new node;
-        B = arr[i]->first;
-        while(B!=NULL)
-        {
-            if((arr[i]->position)>(B->position))
-            {
-               cout<< arr[i]->position<<" "<<B->position<<endl;
-               //int cou=0;
-                for (int j=1; j<17; j++)
-                {
-                    if (arr[i]->ministries[j]==arr[B->position]->ministries[j] && arr[i]->ministries[j]!=0)
-                    {
-                        //cou++
-                        error3=true;
-                        error3arr[j]=j;
-                    }
+    return 0;
+}
 
-                }
-            }
-            B=B->next;
-        }
-    }
+//error3
+
 //error4
+long long int mistake=0;
+long long int arr_total=0;
 node*A=new node;
+node_num *Z=new node_num;
     for (int i=biggest_pos; i>0; i--)
     {
         mistake=0;
         if(arr[i]->first!=NULL)
         {
+
             if(arr[i]->total_amount!=0)
             {
             mistake =arr[i]->total_amount;
             }
+
             A=arr[i]->first;
-            long int arr_total=0;
+            arr_total=0;
             while(A!=NULL)
             {
+
                 arr_total=arr_total+A->amount;
                 A=A->next;
             }
+
             if (arr_total!=arr[i]->amount || mistake!=0)
             {
                 if((arr_total-arr[i]->amount)!=0)
@@ -352,71 +445,80 @@ node*A=new node;
                     mistake =mistake+ arr_total-arr[i]->amount;
                 }
             }
-//                if (mistake>4000000000)
-//                {
-//                    mistake=4000000001;
-//                }
+
+                if (mistake>=4000000000)
+            {
+
+                error4=true;
+                Error4_saraksts.add_element(i, 4000000001);
+
+                Z=arr[i]->parent_first;
+
+                while(Z!=NULL)
+                {
+                    arr[Z->num]->total_amount=4000000001;
+                    Z=Z->next;
+                }
+            }
+            else {
                 arr[i]->total_amount=mistake;
                 error4=true;
-                Error4_saraksts.add_element(arr[i]->total_amount, i);
-                node_num *Z=new node_num;
+                Error4_saraksts.add_element(i, arr[i]->total_amount);
+
                 Z=arr[i]->parent_first;
+
                 while(Z!=NULL)
                 {
                     arr[Z->num]->total_amount=arr[Z->num]->total_amount+mistake;
                     Z=Z->next;
                 }
+            }
+
 
             }
         }
 }
 
 
+cout<<error1<<" "<<error2<<" "<<error3<<" "<<error4<<endl;
 
-if (error1 ==true)
-{
-    node *P = new node;
-    P = Error1_saraksts.first;
-    fout<<"Error_1"<<endl;
-    while (P!=NULL)
-    {
-        fout<<P->position<<" "<<P->amount<<endl;
-        P=P->next;
-    }
-}
 
-if (error2 ==true && error1==false)
-{
-    node *P = new node;
-    P = Error2_saraksts.first;
-    fout<<"Error_2"<<endl;
-    while (P!=NULL)
-    {
-        fout<<P->position<<" "<<P->amount<<endl;
-        P=P->next;
-    }
-}
 
-if (error2 ==false && error1==false && error3==true)
-{
-    fout<<"Error_3"<<endl;
-    for (int i=1; i<17; i++)
-    {
-        if(error3arr[i]!=0)
-        {
-          fout<<" "<<error3arr[i];
-        }
-    }
-
-}
 
 if (error2 ==false && error1==false && error3==false && error4==true)
 {
+    Error4_saraksts.sort_izeja_dilstosi();
     node *P = new node;
     P = Error4_saraksts.first;
     fout<<"Error_4"<<endl;
     while (P!=NULL)
     {
+        if (P->next->next!=NULL)
+        {
+            if(P->position==P->next->position)
+            {
+
+                //node*Temp=new node;
+                //Temp=P;
+               saraksts Error41_saraksts;
+               Error41_saraksts.add_element(P->position,P->amount);
+                while( P->position==P->next->position)
+                {
+                   Error41_saraksts.add_element(P->next->position,P->next->amount);
+                   P=P->next;
+                }
+                P=P->next;
+                Error41_saraksts.sort_izeja();
+                node*Temp=new node;
+                Temp=Error41_saraksts.first;
+                while(Temp!=NULL)
+                {
+                    fout<<Temp->amount<<" "<<Temp->position<<endl;
+                    Temp=Temp->next;
+                }
+
+            }
+        }
         fout<<P->position<<" "<<P->amount<<endl;
         P=P->next;
     }
@@ -428,7 +530,7 @@ if (error2==false && error3==false && error1==false && error4==false)
         int c=0;
         for (int j=1; j<17; j++)
         {
-            if(arr[i]->ministries[j]!=0) c++;
+            if(arr[i]->ministries[j]!='f') c++;
         }
         if (c>=2)
         {
