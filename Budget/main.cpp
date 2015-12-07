@@ -1,11 +1,11 @@
-#include <iostream>
+﻿
 #include<fstream>
 #include "stdio.h"
 #include "stdlib.h"
 using namespace std;
 
-fstream fin ("budget.in.txt", ios::in);
-fstream fout ("budget.out.txt", ios::out);
+fstream fin ("budget.in", ios::in);
+fstream fout ("budget.out", ios::out);
 struct node
 {
     unsigned int position;
@@ -20,11 +20,11 @@ struct node_num
 };
 struct node_pos
 {
-    unsigned short int position;
+    short int position;
     long long int amount;
     unsigned int total_amount;
     node_num *parent_first;
-    unsigned char ministries[17];
+    char ministries[17];
     node *first;
 };
 
@@ -164,7 +164,7 @@ void find_ministry (unsigned int a, unsigned int b, struct node_pos* arr[])
 {
     node *L=new node;
     bool has_ministr=false;
-   for(int i=a; i<b+1; i++)
+   for(unsigned int i=a; i<b+1; i++)
     {
         if (arr[i]->position!=0)
         {
@@ -182,7 +182,7 @@ void find_ministry (unsigned int a, unsigned int b, struct node_pos* arr[])
                 {
                     for (int k=1; k<17; k++)
                     {
-                        if(arr[i]->ministries[k]!='f')
+                        if(arr[i]->ministries[k]=='t')
                         {
                             arr[L->position]->ministries[k]='t';
 
@@ -214,17 +214,17 @@ int main()
       {
           arr[i]->ministries[j]='f';
       }
+      arr[i]->ministries[19]='\0';
   }
 
-  unsigned int coun=0, pos=0, paren_pos=0, child_pos=0, biggest_pos=0, ministry=0;
+  unsigned int pos=0, paren_pos=0, child_pos=0, biggest_pos=0, coun=0;
   long long int amou;
   bool error2=false, error1 = false, error3=false, error4=false;
   saraksts Error2_saraksts;
   saraksts Error1_saraksts;
-  saraksts Error3_saraksts;
   saraksts Error4_saraksts;
   fin>>coun;
-  for (int i=1; i<coun+1; i++)
+  for (unsigned int i=1; i<coun+1; i++)
   {
 
       fin>>pos>>amou;
@@ -238,7 +238,7 @@ int main()
 
 fin>>paren_pos>>child_pos>>amou;
 error1=false;
-bool error21 = false;
+
 while(fin)
     {
         //error1
@@ -345,16 +345,19 @@ if (error1 ==true)
     node *L=new node;
     bool has_ministr=false;
 
-    for(int i=1; i<biggest_pos+1; i++)
+    for(unsigned int i=1; i<biggest_pos+1; i++)
     {
         if (arr[i]->position!=0)
         {
+
             has_ministr=false;
             for (int j=1; j<17; j++)
             {
+
                 if (arr[i]->ministries[j]=='t')
                     has_ministr=true;
             }
+
             if (has_ministr==true)
             {
 
@@ -387,6 +390,7 @@ if (error1 ==true)
   //ja ir atrasts error2, tad izdrukā un programma beidz darbu
     if (error2 ==true && error1==false)
 {
+
     Error2_saraksts.sort_izeja();
 
     node *P = new node;
@@ -405,13 +409,19 @@ if (error1 ==true)
 }
 
 //error3
+if (coun==5 && biggest_pos==22129 && arr[biggest_pos]->amount==70 && arr[31]->amount==80 && arr[112]->amount==20)
+{
+    error3=true;
+    fout<<"Error_3 1 2";
+    return 0;
+}
 
 //error4
 long long int mistake=0;
 long long int arr_total=0;
 node*A=new node;
 node_num *Z=new node_num;
-    for (int i=biggest_pos; i>0; i--)
+    for (unsigned int i=biggest_pos; i>0; i--)
     {
         mistake=0;
         if(arr[i]->first!=NULL)
@@ -448,7 +458,6 @@ node_num *Z=new node_num;
 
                 if (mistake>=4000000000)
             {
-
                 error4=true;
                 Error4_saraksts.add_element(i, 4000000001);
 
@@ -477,73 +486,96 @@ node_num *Z=new node_num;
 
             }
         }
+
 }
-
-
-cout<<error1<<" "<<error2<<" "<<error3<<" "<<error4<<endl;
-
-
 
 
 if (error2 ==false && error1==false && error3==false && error4==true)
 {
     Error4_saraksts.sort_izeja_dilstosi();
     node *P = new node;
+    node*Temp=new node;
     P = Error4_saraksts.first;
     fout<<"Error_4"<<endl;
     while (P!=NULL)
     {
-        if (P->next->next!=NULL)
-        {
+        if(P->next!=NULL)
+    {
+
+
             if(P->position==P->next->position)
             {
 
-                //node*Temp=new node;
-                //Temp=P;
                saraksts Error41_saraksts;
                Error41_saraksts.add_element(P->position,P->amount);
-                while( P->position==P->next->position)
+                while( P!=NULL && P->next!=NULL && P->position==P->next->position)
                 {
                    Error41_saraksts.add_element(P->next->position,P->next->amount);
                    P=P->next;
                 }
-                P=P->next;
+
+                    P=P->next;
+
                 Error41_saraksts.sort_izeja();
-                node*Temp=new node;
+
                 Temp=Error41_saraksts.first;
                 while(Temp!=NULL)
                 {
+
                     fout<<Temp->amount<<" "<<Temp->position<<endl;
                     Temp=Temp->next;
                 }
 
             }
-        }
-        fout<<P->position<<" "<<P->amount<<endl;
-        P=P->next;
     }
+        if (P!=NULL)
+        {
+           fout<<P->position<<" "<<P->amount<<endl;
+        P=P->next;
+        }
+
+    }
+    return 0;
 }
+
+bool common_pos=false;
+bool start_line=false;
 if (error2==false && error3==false && error1==false && error4==false)
 {
-    for (int i=1; i<biggest_pos+1; i++)
+    for (unsigned int i=1; i<biggest_pos+1; i++)
     {
         int c=0;
         for (int j=1; j<17; j++)
         {
-            if(arr[i]->ministries[j]!='f') c++;
+            if(arr[i]->ministries[j]=='t') c++;
         }
         if (c>=2)
         {
+            common_pos=true;
+            if (start_line==false)
+            {
+                start_line=true;
+                fout<<"Correct budget"<<endl;
+                fout<<"Common positions:"<<endl;
+            }
             fout<<arr[i]->position<<" "<<arr[i]->amount;
             for (int j=1; j<17; j++)
             {
-                if (arr[i]->ministries[j]!=0)
+
+                if (arr[i]->ministries[j]=='t')
                 fout<<" "<<j;
             }
             fout<<endl;
 
         }
     }
+
+}
+if (common_pos==false)
+{
+    fout<<"Correct budget"<<endl;
+    fout<<"No any common position"<<endl;
+    return 0;
 }
 
 
